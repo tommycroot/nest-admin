@@ -16,7 +16,7 @@ export class OrderService extends AbstractService {
 
   async pagninate(page = 1, relations = []): Promise<PaginatedResult> {
 
-    const {data, meta } = await super.pagninate(page, relations)
+    const { data, meta } = await super.pagninate(page, relations)
 
     return {
       data: data.map((order: Order) => ({
@@ -29,5 +29,14 @@ export class OrderService extends AbstractService {
       })),
       meta
     }
+  }
+
+  async chart() {
+    return this.orderRepository.query(`
+        SELECT DATE_FORMAT (o.created_at, '%Y-%M-%D') as DATE, sum(i.price * i.quantity) as sum 
+        FROM orders o 
+        JOIN order_items i on o.id = i.order_id 
+        GROUP BY date;
+    `)
   }
 }
